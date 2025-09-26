@@ -111,7 +111,10 @@ class MLPClassifierDeep(nn.Module):
         h: int = 64,
         w: int = 64,
         num_classes: int = 6,
-
+        hidden_dim: int = 192,     # width of hidden layers 
+        num_layers: int = 4,       # number of HIDDEN layers (≥4 as required)
+        dropout: float = 0.2,
+        **_: object,               # ignore extra kwargs gracefully
     ):
         """
         An MLP with multiple hidden layers
@@ -126,8 +129,30 @@ class MLPClassifierDeep(nn.Module):
             num_layers: int, number of hidden layers
         """
         super().__init__()
+        in_features = 3 * h * w  # 3 channels, RGB
 
-        raise NotImplementedError("MLPClassifierDeep.__init__() is not implemented")
+        layers: list[nn.Module] = [nn.Flatten(start_dim=1)]  # flatten all dimensions except batch
+
+        # at least one hidden layer
+        n_hidden = max(1, num_layers)
+        last = in_features
+        for _ in range(n_hidden):
+            layers += [
+                nn.Linear(last, hidden_dim),
+                nn.ReLU(inplace=True),
+                nn.Dropout(dropout),
+            ]
+            last = hidden_dim
+        
+        #output layer
+        layers.append(nn.Linear(last, num_classes))
+
+        self.net = nn.Sequential(*layers)
+
+        for m in self.net:
+            if isinstance(m, nn.Linear):
+                nn.init.kaiming_normal_(m.weight, nonlinearity='relu')
+                nn.init.zeros_(m.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -137,8 +162,7 @@ class MLPClassifierDeep(nn.Module):
         Returns:
             tensor (b, num_classes) logits
         """
-        raise NotImplementedError("MLPClassifierDeep.forward() is not implemented")
-
+        return self.net(x)
 
 class MLPClassifierDeepResidual(nn.Module):
     def __init__(
@@ -146,6 +170,10 @@ class MLPClassifierDeepResidual(nn.Module):
         h: int = 64,
         w: int = 64,
         num_classes: int = 6,
+        hidden_dim: int = 128,     # width of hidden layers (safe for 10 MB cap)
+        num_layers: int = 4,       # number of HIDDEN layers (≥4 as required)
+        dropout: float = 0.2,
+        **_: object,               # ignore extra kwargs gracefully
     ):
         """
         Args:
@@ -158,19 +186,57 @@ class MLPClassifierDeepResidual(nn.Module):
             num_layers: int, number of hidden layers
         """
         super().__init__()
+        in_features = 3 * h * w  # 3 channels, RGB
 
-        raise NotImplementedError("MLPClassifierDeepResidual.__init__() is not implemented")
+        class ResidualBlock(nn.Module):
+            def __init__(self, dim: int, dropout: float):
+                super().__init__()
+                self.fc1 = nn.Linear(dim, dim)
+                self.act = nn.ReLU(inplace=True)
+                self.dropout = nn.Dropout(dropout)
+                self.fc2 = nn.Linear(dim, dim)
+
+            # He init (good for ReLU)
+                nn.init.kaiming_normal_(self.fc1.weight, nonlinearity="relu")
+                nn.init.zeros_(self.fc1.bias)
+                nn.init.kaiming_normal_(self.fc2.weight, nonlinearity="relu")
+                nn.init.zeros_(self.fc2.bias)
+
+            def forward(self, x: torch.Tensor) -> torch.Tensor:
+                y = self.fc1(x)
+                y = self.act(y)
+                y = self.dropout(y)
+                y = self.fc2(y)
+                y = y + x            # residual add
+                y = self.act(y)      # post-activation
+                return y
+            
+        # build the network
+        blocks = [nn.Flatten(start_dim=1),
+                  nn.Linear(in_features, hidden_dim),
+                  nn.ReLU(inplace=True)]  # flatten all dimensions except batch
+        
+        # stem init
+        nn.init.kaiming_normal_(blocks[1].weight, nonlinearity="relu")
+        nn.init.zeros_(blocks[1].bias)
+
+         # Residual body
+        for _ in range(max(1, num_layers)):
+            blocks.append(ResidualBlock(hidden_dim, dropout))
+
+        # Head
+        blocks += [nn.Dropout(dropout),
+                   nn.Linear(hidden_dim, num_classes)]
+        self.net = nn.Sequential(*blocks)
+
+        # Head init
+        for m in self.net:
+            if isinstance(m, nn.Linear) and m.out_features == num_classes:
+                nn.init.kaiming_normal_(m.weight, nonlinearity="relu")
+                nn.init.zeros_(m.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """
-        Args:
-            x: tensor (b, 3, H, W) image
-
-        Returns:
-            tensor (b, num_classes) logits
-        """
-        raise NotImplementedError("MLPClassifierDeepResidual.forward() is not implemented")
-
+        return self.net(x)
 
 model_factory = {
     "linear": LinearClassifier,

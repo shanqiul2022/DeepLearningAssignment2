@@ -17,7 +17,7 @@ def train(
     lr: float = 3e-3,
     weight_decay: float = 5e-4,
     batch_size: int = 128,
-    val_batch_size: int = 128,
+    val_batch_size: int = 256,
     num_workers: int = 2,
     optimizer: str = "adam",                 # "adam" | "sgd"
     momentum: float = 0.9,                   # used for SGD
