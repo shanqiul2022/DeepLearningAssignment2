@@ -14,9 +14,9 @@ def train(
     exp_dir: str = "logs",
     model_name: str = "linear",
     num_epoch: int = 500,
-    lr: float = 3e-3,
+    lr: float = 2e-3,
     weight_decay: float = 5e-4,
-    batch_size: int = 128,
+    batch_size: int = 256,
     val_batch_size: int = 256,
     num_workers: int = 2,
     optimizer: str = "adam",                 # "adam" | "sgd"
@@ -167,12 +167,12 @@ if __name__ == "__main__":
     # core hyperparams
     parser.add_argument("--num_epoch", type=int, default=150)
     parser.add_argument("--batch_size", type=int, default=256)
-    parser.add_argument("--lr", type=float, default=3e-3)
+    parser.add_argument("--lr", type=float, default=2e-3)
     parser.add_argument("--weight_decay", type=float, default=5e-4)
     parser.add_argument("--seed", type=int, default=2024)
 
     # optional: additional model hyperparamters
-    parser.add_argument("--num_layers", type=int, default=3)
+    # parser.add_argument("--num_layers", type=int, default=3)
 
     # pass all arguments to train
     train(**vars(parser.parse_args()))

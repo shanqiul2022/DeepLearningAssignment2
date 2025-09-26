@@ -11,7 +11,6 @@ from pathlib import Path
 import torch
 import torch.nn as nn
 
-
 class ClassificationLoss(nn.Module):
     def forward(self, logits: torch.Tensor, target: torch.LongTensor) -> torch.Tensor:
         """
@@ -67,8 +66,9 @@ class MLPClassifier(nn.Module):
         w: int = 64,
         num_classes: int = 6,
         hidden_size: int = 128,
-        num_layers: int = 2, 
+        num_layers: int = 1, 
         dropout: float = 0.2,
+        **_: object,
     ):
         """
         An MLP with a single hidden layer
@@ -81,6 +81,7 @@ class MLPClassifier(nn.Module):
         super().__init__()
         self.h = h
         self.w = w
+        if hidden_size is not None: hidden_dim = hidden_size
         in_features = 3 * h * w  # 3 channels, RGB
 
         self.flatten = nn.Flatten(start_dim=1) # flatten all dimensions except batch
@@ -112,7 +113,7 @@ class MLPClassifierDeep(nn.Module):
         w: int = 64,
         num_classes: int = 6,
         hidden_dim: int = 192,     # width of hidden layers 
-        num_layers: int = 4,       # number of HIDDEN layers (≥4 as required)
+        num_layers: int = 6,       
         dropout: float = 0.2,
         **_: object,               # ignore extra kwargs gracefully
     ):
