@@ -167,7 +167,7 @@ if __name__ == "__main__":
     # core hyperparams
     parser.add_argument("--num_epoch", type=int, default=150)
     parser.add_argument("--batch_size", type=int, default=256)
-    parser.add_argument("--lr", type=float, default=2e-3)
+    parser.add_argument("--lr", type=float, default=1.5e-3)
     parser.add_argument("--weight_decay", type=float, default=5e-4)
     parser.add_argument("--seed", type=int, default=2024)
 
