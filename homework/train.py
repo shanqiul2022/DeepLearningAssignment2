@@ -22,8 +22,8 @@ def train(
     optimizer: str = "adam",                 # "adam" | "sgd"
     momentum: float = 0.9,                   # used for SGD
     scheduler: str = "cosine",               # "none" | "cosine" | "step"
-    step_size: int = 50,                     # StepLR
-    gamma: float = 0.1,                      # StepLR
+    step_size: int = 40,                     # StepLR
+    gamma: float = 0.5,                      # StepLR
     seed: int = 2024,
     **model_kwargs,
 ):
@@ -165,12 +165,17 @@ if __name__ == "__main__":
     parser.add_argument("--exp_dir", type=str, default="logs")
     parser.add_argument("--model_name", type=str, required=True)
     # core hyperparams
-    parser.add_argument("--num_epoch", type=int, default=150)
+    parser.add_argument("--num_epoch", type=int, default=250)
     parser.add_argument("--batch_size", type=int, default=256)
     parser.add_argument("--lr", type=float, default=1.5e-3)
+    parser.add_argument("--optimizer", type=str, choices=["adam", "sgd"], default="adam")
+    parser.add_argument("--momentum", type=float, default=0.9)
+    parser.add_argument("--scheduler", type=str, choices=["none", "cosine", "step"], default="cosine")
+    parser.add_argument("--step_size", type=int, default=40)    # used when --scheduler step
+    parser.add_argument("--gamma", type=float, default=0.5)     # used when --scheduler step
     parser.add_argument("--weight_decay", type=float, default=5e-4)
     parser.add_argument("--seed", type=int, default=2024)
-
+    
     # optional: additional model hyperparamters
     # parser.add_argument("--num_layers", type=int, default=3)
 

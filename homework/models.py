@@ -65,7 +65,7 @@ class MLPClassifier(nn.Module):
         h: int = 64,
         w: int = 64,
         num_classes: int = 6,
-        hidden_size: int = 128,
+        hidden_size: int = 192,
         num_layers: int = 1, 
         dropout: float = 0.2,
         **_: object,
@@ -114,7 +114,7 @@ class MLPClassifierDeep(nn.Module):
         num_classes: int = 6,
         hidden_dim: int = 192,     # width of hidden layers 
         num_layers: int = 6,       
-        dropout: float = 0.2,
+        dropout: float = 0.25,
         **_: object,               # ignore extra kwargs gracefully
     ):
         """
