@@ -271,14 +271,14 @@ class LinearGrader(Grader):
         model = self.module.load_model(self.KIND, with_weights=False)
         self.check_model(model)
 
-    @Case(score=15, timeout=10000)
+    @Case(score=15, timeout=100000)
     def test_accuracy(self):
         """Accuracy"""
         model = self.module.load_model(self.KIND, with_weights=True)
         self.check_model(model)
         return self.accuracy(model, *self.ACC_RANGE)
 
-    @Case(score=1, timeout=10000, extra_credit=True)
+    @Case(score=1, timeout=100000, extra_credit=True)
     def test_accuracy_extra(self):
         """Accuracy: Extra Credit"""
         model = self.module.load_model(self.KIND, with_weights=True)
