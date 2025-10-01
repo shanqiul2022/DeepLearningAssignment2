@@ -175,6 +175,7 @@ if __name__ == "__main__":
     parser.add_argument("--gamma", type=float, default=0.5)     # used when --scheduler step
     parser.add_argument("--weight_decay", type=float, default=5e-4)
     parser.add_argument("--seed", type=int, default=2024)
+    parser.add_argument("--dropout", type=float, default = 0.2)
     
     # optional: additional model hyperparamters
     # parser.add_argument("--num_layers", type=int, default=3)
